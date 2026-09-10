@@ -4,7 +4,9 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot({
+    isGlobal: true,
+  })],
   controllers: [AppController],
   providers: [AppService],
 })

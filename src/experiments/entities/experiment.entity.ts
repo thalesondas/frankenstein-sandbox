@@ -18,9 +18,15 @@ export class Experiment {
   @Column()
   status: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamptz',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamptz',
+  })
   updatedAt: Date;
 }

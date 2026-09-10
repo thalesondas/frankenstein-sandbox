@@ -5,11 +5,12 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { v7 as uuidv7 } from 'uuid';
 
 @Entity('experiments')
 export class Experiment {
   @PrimaryColumn({ type: 'uuid' })
-  id: number;
+  id: string = uuidv7();
 
   @Column()
   name: string;

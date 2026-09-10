@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ExperimentsModule } from './experiments/experiments.module.js';
 
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -10,6 +11,7 @@ import { AppService } from './app.service.js';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -20,8 +22,13 @@ import { AppService } from './app.service.js';
         username: configService.get<string>('DATABASE_USER'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
+        
+        autoLoadEntities: true,
+        synchronize: true,
       }),
-    })
+    }),
+
+    ExperimentsModule
   ],
   controllers: [AppController],
   providers: [AppService],

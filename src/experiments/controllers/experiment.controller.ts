@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { CreateExperimentDto } from "../dto/create-experiment.dto.js";
 import { Experiment } from "../entities/experiment.entity.js";
 import { ExperimentService } from "../services/experiment.service.js";
@@ -15,5 +15,10 @@ export class ExperimentsController {
     @Get()
     async findAll(): Promise<Experiment[]> {
         return this.experimentService.findAll();
+    }
+
+    @Get(':id')
+    async findOne(@Param('id') id: string): Promise<Experiment | null> {
+        return this.experimentService.findOne(id);
     }
 }

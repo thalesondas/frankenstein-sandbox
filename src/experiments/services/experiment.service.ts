@@ -11,13 +11,19 @@ export class ExperimentService {
     private readonly experimentRepository: Repository<Experiment>,
   ) {}
 
-  async create(createExperimentDto: CreateExperimentDto): Promise<Experiment> {
+  create(createExperimentDto: CreateExperimentDto): Promise<Experiment> {
     const experiment = this.experimentRepository.create(createExperimentDto);
   
     return this.experimentRepository.save(experiment);
   }
 
-  async findAll(): Promise<Experiment[]> {
+  findAll(): Promise<Experiment[]> {
     return this.experimentRepository.find();
+  }
+
+  async findOne(id: string): Promise<Experiment | null> {
+    const experiment = await this.experimentRepository.findOne({ where: { id: id } });
+
+    return experiment;
   }
 }

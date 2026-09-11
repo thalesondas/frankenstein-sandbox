@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { v7 as uuidv7 } from 'uuid';
+import { ExperimentStatus } from '../enums/experiment-status.enum.js';
 
 @Entity('experiments')
 export class Experiment {
@@ -15,8 +16,11 @@ export class Experiment {
   @Column()
   name: string;
 
-  @Column()
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: ExperimentStatus,
+  })
+  status: ExperimentStatus;
 
   @CreateDateColumn({
     name: 'created_at',

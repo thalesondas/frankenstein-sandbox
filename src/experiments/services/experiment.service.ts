@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Experiment } from '../entities/experiment.entity.js';
 import { CreateExperimentDto } from '../dto/create-experiment.dto.js';
+import { UpdateExperimentDto } from '../dto/update-experiment.dto.js';
 
 @Injectable()
 export class ExperimentService {
@@ -25,5 +26,21 @@ export class ExperimentService {
     const experiment = await this.experimentRepository.findOne({ where: { id: id } });
 
     return experiment;
+  }
+
+  async update(
+    id: string,
+    updateExperimentDto: UpdateExperimentDto
+  ): Promise<Experiment> {
+    const experiment = await this.experimentRepository.preload({
+      id: id,
+      ...updateExperimentDto,
+    });
+
+    if (!experiment) {
+      throw new NotFoundException(`Experimento com ID ${id} não encontrado.`);
+    }
+
+    return await this.experimentRepository.save(experiment);
   }
 }

@@ -1,15 +1,22 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Experiment } from '../entities/experiment.entity.js';
 import { CreateExperimentDto } from '../dto/create-experiment.dto.js';
 import { UpdateExperimentDto } from '../dto/update-experiment.dto.js';
+import { ExperimentLog } from '../entities/experiment-log.entity.js';
+import { ExperimentStatus } from '../enums/experiment-status.enum.js';
 
 @Injectable()
 export class ExperimentService {
   constructor(
     @InjectRepository(Experiment)
     private readonly experimentRepository: Repository<Experiment>,
+
+    @InjectRepository(ExperimentLog)
+    private readonly experimentLogRepository: Repository<ExperimentLog>,
+
+    private readonly dataSource: DataSource,
   ) {}
   private readonly logger = new Logger(ExperimentService.name);
 
@@ -66,5 +73,28 @@ export class ExperimentService {
     this.logger.log(`Experimento com ID ${experiment.id} foi deletado.`);
 
     return;
+  }
+
+  async createWithLog(): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const experiment = manager.create(Experiment, {
+        name: 'Experimento de transação',
+        status: ExperimentStatus.PENDING,
+      });
+
+      await manager.save(experiment);
+
+      this.logger.log(`Experiment teste criado: ${experiment.id}`);
+
+      const log = manager.create(ExperimentLog, {
+        experiment,
+        message: 'Log do experimento',
+      });
+
+      // Proposital: simula uma falha para demonstrar o rollback.
+      throw new Error('Erro proposital para testar transação');
+
+      await manager.save(log);
+    });
   }
 }

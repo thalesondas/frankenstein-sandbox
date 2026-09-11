@@ -36,4 +36,9 @@ export class ExperimentsController {
     async delete(@Param('id') id: string): Promise<void> {
         return this.experimentService.delete(id);
     }
+
+    @Post('test-transaction')
+    async testTransaction(): Promise<void> {
+        return this.experimentService.createWithLog();
+    }
 }

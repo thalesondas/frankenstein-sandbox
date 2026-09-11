@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Experiment } from '../entities/experiment.entity.js';
@@ -11,11 +11,15 @@ export class ExperimentService {
     @InjectRepository(Experiment)
     private readonly experimentRepository: Repository<Experiment>,
   ) {}
+  private readonly logger = new Logger(ExperimentService.name);
 
-  create(createExperimentDto: CreateExperimentDto): Promise<Experiment> {
+  async create(createExperimentDto: CreateExperimentDto): Promise<Experiment> {
     const experiment = this.experimentRepository.create(createExperimentDto);
   
-    return this.experimentRepository.save(experiment);
+    await this.experimentRepository.save(experiment);
+    this.logger.log(`Experimento com ID ${experiment.id} foi criado.`);
+
+    return experiment;    
   }
 
   findAll(): Promise<Experiment[]> {
@@ -41,7 +45,10 @@ export class ExperimentService {
       throw new NotFoundException(`Experimento com ID ${id} não encontrado.`);
     }
 
-    return await this.experimentRepository.save(experiment);
+    await this.experimentRepository.save(experiment);
+    this.logger.log(`Experimento com ID ${experiment.id} foi modificado.`);
+
+    return experiment;
   }
 
   async delete(id: string): Promise<void> {
@@ -52,6 +59,8 @@ export class ExperimentService {
     }
 
     await this.experimentRepository.remove(experiment);
+    this.logger.log(`Experimento com ID ${experiment.id} foi deletado.`);
+
     return;
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from "@nestjs/common";
 import { CreateExperimentDto } from "../dto/create-experiment.dto.js";
 import { Experiment } from "../entities/experiment.entity.js";
 import { ExperimentService } from "../services/experiment.service.js";
@@ -29,5 +29,11 @@ export class ExperimentsController {
         @Body() updateExperimentDto: UpdateExperimentDto,
     ): Promise<Experiment> {
         return this.experimentService.update(id, updateExperimentDto);
+    }
+
+    @Delete(':id')
+    @HttpCode(204)
+    async delete(@Param('id') id: string): Promise<void> {
+        return this.experimentService.delete(id);
     }
 }

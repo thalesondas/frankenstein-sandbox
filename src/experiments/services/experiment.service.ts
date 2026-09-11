@@ -43,4 +43,15 @@ export class ExperimentService {
 
     return await this.experimentRepository.save(experiment);
   }
+
+  async delete(id: string): Promise<void> {
+    const experiment = await this.experimentRepository.findOne({ where: { id: id } });
+
+    if (!experiment) {
+      throw new NotFoundException(`Experimento com ID ${id} não encontrado.`);
+    }
+
+    await this.experimentRepository.remove(experiment);
+    return;
+  }
 }

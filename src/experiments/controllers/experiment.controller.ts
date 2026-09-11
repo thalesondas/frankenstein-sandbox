@@ -19,7 +19,7 @@ export class ExperimentsController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string): Promise<Experiment | null> {
+    async findOne(@Param('id') id: string): Promise<Experiment> {
         return this.experimentService.findOne(id);
     }
 

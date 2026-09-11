@@ -26,8 +26,12 @@ export class ExperimentService {
     return this.experimentRepository.find();
   }
 
-  async findOne(id: string): Promise<Experiment | null> {
+  async findOne(id: string): Promise<Experiment> {
     const experiment = await this.experimentRepository.findOne({ where: { id: id } });
+
+    if (!experiment) {
+      throw new NotFoundException(`Experimento com ID ${id} não encontrado.`);
+    };
 
     return experiment;
   }
@@ -43,7 +47,7 @@ export class ExperimentService {
 
     if (!experiment) {
       throw new NotFoundException(`Experimento com ID ${id} não encontrado.`);
-    }
+    };
 
     await this.experimentRepository.save(experiment);
     this.logger.log(`Experimento com ID ${experiment.id} foi modificado.`);

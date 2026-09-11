@@ -16,4 +16,8 @@ export class ExperimentService {
   
     return this.experimentRepository.save(experiment);
   }
+
+  async findAll(): Promise<Experiment[]> {
+    return this.experimentRepository.find();
+  }
 }

@@ -98,7 +98,7 @@ export class ExperimentService {
     });
   }
 
-  async simulateConcurrency(
+  async simulateOptimisticLock(
     id: string,
     status: ExperimentStatus,
     delay: number,
@@ -143,5 +143,41 @@ export class ExperimentService {
     );
 
     return this.findOne(id);
+  }
+
+  async simulatePessimisticLock(
+    id: string,
+    status: ExperimentStatus,
+    delay: number,
+  ): Promise<Experiment> {
+    return this.dataSource.transaction(async (manager) => {
+      const experiment = await manager
+        .createQueryBuilder(Experiment, 'experiment')
+        .setLock('pessimistic_write')
+        .where('experiment.id = :id', { id })
+        .getOne();
+
+      if (!experiment) {
+        throw new NotFoundException(
+          `Experimento com ID ${id} não encontrado.`,
+        );
+      }
+
+      this.logger.log(
+        `Experiment ${id}: adquiri o lock. Status atual: ${experiment.status}. Aguardando ${delay}ms...`,
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
+      experiment.status = status;
+
+      await manager.save(experiment);
+
+      this.logger.log(
+        `Experiment ${id}: salvei status ${experiment.status}. Liberando lock.`,
+      );
+
+      return experiment;
+    });
   }
 }

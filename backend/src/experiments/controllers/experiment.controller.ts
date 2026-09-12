@@ -43,15 +43,30 @@ export class ExperimentsController {
         return this.experimentService.createWithLog();
     }
 
-    @Patch(':id/concurrency-test')
-        async simulateConcurrency(
+    @Patch(':id/optimistic-lock-test')
+    async simulateOptimisticLock(
         @Param('id') id: string,
         @Body() body: {
             status: ExperimentStatus;
             delay: number;
         },
-        ): Promise<Experiment> {
-        return this.experimentService.simulateConcurrency(
+    ): Promise<Experiment> {
+        return this.experimentService.simulateOptimisticLock(
+            id,
+            body.status,
+            body.delay,
+        );
+    }
+
+    @Patch(':id/pessimistic-lock-test')
+    async simulatePessimisticLock(
+        @Param('id') id: string,
+        @Body() body: {
+            status: ExperimentStatus;
+            delay: number;
+        },
+    ): Promise<Experiment> {
+        return this.experimentService.simulatePessimisticLock(
             id,
             body.status,
             body.delay,

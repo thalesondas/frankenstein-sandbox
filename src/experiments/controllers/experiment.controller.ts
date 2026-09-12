@@ -3,6 +3,7 @@ import { CreateExperimentDto } from "../dto/create-experiment.dto.js";
 import { Experiment } from "../entities/experiment.entity.js";
 import { ExperimentService } from "../services/experiment.service.js";
 import { UpdateExperimentDto } from "../dto/update-experiment.dto.js";
+import { ExperimentStatus } from "../enums/experiment-status.enum.js";
 
 @Controller('experiments')
 export class ExperimentsController {
@@ -40,5 +41,20 @@ export class ExperimentsController {
     @Post('test-transaction')
     async testTransaction(): Promise<void> {
         return this.experimentService.createWithLog();
+    }
+
+    @Patch(':id/concurrency-test')
+        async simulateConcurrency(
+        @Param('id') id: string,
+        @Body() body: {
+            status: ExperimentStatus;
+            delay: number;
+        },
+        ): Promise<Experiment> {
+        return this.experimentService.simulateConcurrency(
+            id,
+            body.status,
+            body.delay,
+        );
     }
 }

@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Experiment } from '../entities/experiment.entity.js';
@@ -96,5 +96,52 @@ export class ExperimentService {
 
       await manager.save(log);
     });
+  }
+
+  async simulateConcurrency(
+    id: string,
+    status: ExperimentStatus,
+    delay: number,
+  ): Promise<Experiment> {
+    const experiment = await this.experimentRepository.findOne({
+      where: { id },
+    });
+
+    if (!experiment) {
+      throw new NotFoundException(
+        `Experimento com ID ${id} não encontrado.`,
+      );
+    }
+
+    this.logger.log(
+      `Experiment ${id}: li status ${experiment.status}. Aguardando ${delay}ms...`,
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+
+    const updateResult = await this.experimentRepository
+      .createQueryBuilder()
+      .update(Experiment)
+      .set({
+        status,
+        version: () => 'version + 1',
+      })
+      .where('id = :id AND version = :version', {
+        id: experiment.id,
+        version: experiment.version,
+      })
+      .execute();
+
+    if (updateResult.affected === 0) {
+      throw new ConflictException(
+        `Falha de concorrência: o experimento ${id} foi alterado por outra requisição.`,
+      );
+    }
+
+    this.logger.log(
+      `Experiment ${id}: salvei status ${status}.`,
+    );
+
+    return this.findOne(id);
   }
 }

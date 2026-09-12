@@ -4,6 +4,7 @@ import {
   Entity,
   PrimaryColumn,
   UpdateDateColumn,
+  VersionColumn,
 } from 'typeorm';
 import { v7 as uuidv7 } from 'uuid';
 import { ExperimentStatus } from '../enums/experiment-status.enum.js';
@@ -33,4 +34,7 @@ export class Experiment {
     type: 'timestamptz',
   })
   updatedAt: Date;
+
+  @VersionColumn()
+  version: number;
 }

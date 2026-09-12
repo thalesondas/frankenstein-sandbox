@@ -1,0 +1,24 @@
+services:
+  api:
+    build: ./backend
+    command: node dist/main.js
+    ports:
+      - '3000:3000'
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=frankenstein
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17
+    container_name: frankenstein-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: frankenstein
+    ports:
+      - '5432:5432'

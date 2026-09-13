@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ExperimentsModule } from './experiments/experiment.module.js';
-
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ExperimentsModule } from './experiments/experiment.module.js';
+import { RedisModule } from './redis/redis.module.js';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { AppService } from './app.service.js';
       }),
     }),
 
-    ExperimentsModule
+    ExperimentsModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

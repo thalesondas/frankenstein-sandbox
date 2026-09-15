@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Experiment } from '../entities/experiment.entity.js';
@@ -6,18 +6,21 @@ import { CreateExperimentDto } from '../dto/create-experiment.dto.js';
 import { UpdateExperimentDto } from '../dto/update-experiment.dto.js';
 import { ExperimentLog } from '../entities/experiment-log.entity.js';
 import { ExperimentStatus } from '../enums/experiment-status.enum.js';
+import { RedisService } from '../../redis/services/redis.service.js';
 
 @Injectable()
 export class ExperimentService {
   constructor(
     @InjectRepository(Experiment)
     private readonly experimentRepository: Repository<Experiment>,
-
     @InjectRepository(ExperimentLog)
     private readonly experimentLogRepository: Repository<ExperimentLog>,
+    @Inject(RedisService)
+    private readonly redisService: RedisService,
 
     private readonly dataSource: DataSource,
   ) {}
+
   private readonly logger = new Logger(ExperimentService.name);
 
   async create(createExperimentDto: CreateExperimentDto): Promise<Experiment> {
@@ -29,8 +32,15 @@ export class ExperimentService {
     return experiment;    
   }
 
-  findAll(): Promise<Experiment[]> {
-    return this.experimentRepository.find();
+  async findAll(): Promise<Experiment[]> {
+    const cached = await this.redisService.get('experiments:all');
+    if (cached !== null) {
+      return JSON.parse(cached);
+    }
+
+    const allExperiments = await this.experimentRepository.find();
+    await this.redisService.set('experiments:all', allExperiments);
+    return allExperiments;
   }
 
   async findOne(id: string): Promise<Experiment> {

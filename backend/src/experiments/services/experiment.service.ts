@@ -25,10 +25,9 @@ export class ExperimentService {
 
   async create(createExperimentDto: CreateExperimentDto): Promise<Experiment> {
     const experiment = this.experimentRepository.create(createExperimentDto);
-  
     await this.experimentRepository.save(experiment);
     this.logger.log(`Experimento com ID ${experiment.id} foi criado.`);
-
+    await this.redisService.del('experiments:all');
     return experiment;    
   }
 
@@ -68,7 +67,7 @@ export class ExperimentService {
 
     await this.experimentRepository.save(experiment);
     this.logger.log(`Experimento com ID ${experiment.id} foi modificado.`);
-
+    await this.redisService.del('experiments:all');
     return experiment;
   }
 
@@ -81,7 +80,7 @@ export class ExperimentService {
 
     await this.experimentRepository.remove(experiment);
     this.logger.log(`Experimento com ID ${experiment.id} foi deletado.`);
-
+    await this.redisService.del('experiments:all');
     return;
   }
 

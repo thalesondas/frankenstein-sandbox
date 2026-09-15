@@ -36,9 +36,8 @@ export class ExperimentService {
     if (cached !== null) {
       return JSON.parse(cached);
     }
-
     const allExperiments = await this.experimentRepository.find();
-    await this.redisService.set('experiments:all', allExperiments);
+    await this.redisService.set('experiments:all', allExperiments, 30);
     return allExperiments;
   }
 
